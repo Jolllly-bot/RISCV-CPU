@@ -327,10 +327,10 @@ module custom_cpu(
 	sign extension
 	*/
 	assign Ioprt_ext = {{20{InstReg[31]}} , InstReg[31:20]};
-	assign Btype_ext = {{20{InstReg[31]}} , {InstReg[31], InstReg[7], InstReg[30:25], InstReg[11:6]}};
-	assign Stype_ext = {{20{InstReg[31]}} , {InstReg[31:25], rd}};
+	assign Btype_ext = {{20{InstReg[31]}} , InstReg[7] , InstReg[30:25] , InstReg[11:8] , 1'b0};
+	assign Stype_ext = {{20{InstReg[31]}} , InstReg[31:25] , InstReg[11:7]};
 	assign Utype_ext = {    InstReg[31:12], 12'd0};
-	assign Jtype_ext = {{12{InstReg[31]}} , {InstReg[31], InstReg[19:12], InstReg[20], InstReg[30:21]}};
+	assign Jtype_ext = {{12{InstReg[31]}} , {InstReg[19:12], InstReg[20], InstReg[30:21], 1'b0}};
 	assign imm_data = ({32{Ioprt | Iload | jalr}} & Ioprt_ext)
 					| ({32{Btype}} & Btype_ext)
 					| ({32{Stype}} & Stype_ext)
