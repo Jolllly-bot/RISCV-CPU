@@ -340,7 +340,7 @@ module custom_cpu(
 	/*
 	PC
 	*/
-	assign Branch = Btype & (funct[0] ^ ALU_zero);
+	assign Branch = Btype & ((~funct[2] & (funct[0] ^ ALU_zero)) | (funct[2] & (funct[0] ^~ ALU_zero)));
 	assign PC_plus4 = PC + 32'd4; 
 	assign PC_tar = PC + imm_data;
 	assign jalr_addr = {ALUReg[31:1] , 1'b0};
@@ -419,8 +419,8 @@ module custom_cpu(
 				 | ({3{Btype}} & {1'b0, funct[2], funct[2] ^~ funct[1]})
 				 | ({3{Rtype}} & {funct[2:1], func7[5] | funct[2:1]})
 				 | ({3{Ioprt}} & {funct[2:0]});
-	assign ALU_A = Btype? rdata2Reg: rdata1Reg;
-	assign ALU_B = Btype? rdata1Reg: ALUsrc? imm_data : rdata2Reg;
+	assign ALU_A = rdata1Reg;
+	assign ALU_B = ALUsrc? imm_data : rdata2Reg;
 
 	/*
 	shifter
