@@ -23,14 +23,14 @@ module alu(
 	wire op_xor;
 	wire op_nor;
 
-	assign op_and = ALUop == 3'b000;
-	assign op_or = ALUop  == 3'b001;
-	assign op_add = ALUop == 3'b010;
-	assign op_sub = ALUop == 3'b110;
-	assign op_slt = ALUop == 3'b111;
+	assign op_and  = ALUop == 3'b111;
+	assign op_or   = ALUop  == 3'b110;
+	assign op_add  = ALUop == 3'b000;
+	assign op_sub  = ALUop == 3'b001;
+	assign op_slt  = ALUop == 3'b010;
 	assign op_sltu = ALUop == 3'b011;
-	assign op_xor = ALUop == 3'b100;
-	assign op_nor = ALUop == 3'b101;
+	assign op_xor  = ALUop == 3'b100;
+	assign op_nor  = ALUop == 3'b101;
 
 	wire [`DATA_WIDTH-1:0] and_result;
 	wire [`DATA_WIDTH-1:0] or_result;

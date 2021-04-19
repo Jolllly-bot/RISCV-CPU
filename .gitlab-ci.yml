@@ -57,7 +57,7 @@ sw_microbench:
 01_memcpy_bhv_sim:
   stage: bhv_sim
   script:
-    - make HW_ACT=bhv_sim HW_VAL=basic:01 CI_RUN=y vivado_prj
+    - make HW_ACT=bhv_sim HW_VAL=basic:01 DUMP_TIME="0 5000" CI_RUN=y vivado_prj
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always

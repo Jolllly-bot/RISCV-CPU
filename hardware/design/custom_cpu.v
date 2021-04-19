@@ -60,14 +60,14 @@ module custom_cpu(
 	localparam RDW = 9'b100000000;
 	localparam HIGH = 1'b1;
 	localparam LOW  = 1'b0;
-	reg [8:0]     current_state;
-	reg [8:0]     next_state;
-	reg [31:0]    ALUReg;
-	reg [31:0]    ResultReg;
-	reg [31:0]    MemReg;
-	reg [31:0]    InstReg;
-	reg [31:0]    rdata1Reg;
-	reg [31:0]    rdata2Reg;
+	reg   [8:0]     current_state;
+	reg   [8:0]     next_state;
+	reg   [31:0]    ALUReg;
+	reg   [31:0]    ResultReg;
+	reg   [31:0]    MemReg;
+	reg   [31:0]    InstReg;
+	reg   [31:0]    rdata1Reg;
+	reg   [31:0]    rdata2Reg;
 	//alu define
 	wire  [31:0]    ALU_A;
 	wire  [31:0]    ALU_B;
@@ -90,61 +90,46 @@ module custom_cpu(
 	wire  [1:0]     Shiftop;
 	wire  [31:0]    Shift_result;
 	//instruction
-	wire  [5:0]     Opcode;
-	wire  [5:0]     Func;
-	wire  [4:0]     rs;
+	wire  [6:0]     opcode;
+	wire  [2:0]     funct;
 	wire  [4:0]     rd;
-	wire  [4:0]     rt;
-	wire  [4:0]     sa;
+	wire  [4:0]     rs1;
+	wire  [4:0]     rs2;
+	wire  [6:0]     func7;
 	//type decode
-	wire NOP;
-	wire Rtype;
-	wire REGIMM;
-	wire Jtype;
-	wire Ibranch;
-	wire Ioprt;
+	wire Utype;
+	wire jalr ;
+	wire jal  ;
+	wire Btype;
 	wire Iload;
-	wire Istore;
-	wire Ibeq;
-	wire Iblez;
-	wire op_shift;
-	wire op_jump;
-	wire op_mov;
-	wire jumpal;
-	wire jr;
-	wire jal;
+	wire Stype;
+	wire Ioprt;
+	wire Rtype;
 	wire lui;
+	wire auipc;
+	wire shift;
 	//control signals
-	wire RegDst;
-	wire Jump;
 	wire Mem2Reg;
 	wire ALUsrc;
-	wire RegWrite;
-	wire ALUop0;
-	wire ALUop1;
-	wire PCsrc;
+	wire Branch;
 	//sign extesion
-	wire  [31:0]    sign_ext;
-	wire  [31:0]    zero_ext;
-	wire  [31:0]    shift_ext;
+	wire  [31:0]    Ioprt_ext;
+	wire  [31:0]    Btype_ext;
+	wire  [31:0]    Stype_ext;
+	wire  [31:0]    Utype_ext;
+	wire  [31:0]    Jtype_ext;
 	wire  [31:0]    imm_data;
+	wire  [31:0]    Data_result;
 	//PC
 	wire  [31:0]    PC_next;
 	wire  [31:0]    PC_plus4;
-	wire  [31:0]    PC_add;
-	wire  [31:0]    PC_result;
 	wire  [31:0]    PC_tar;
-	wire  [31:0]    Jump_tar;
-	wire  [31:0]    Jump_addr;
+	wire  [31:0]    jalr_addr;
 	//load & store
 	wire 			sb;
 	wire 			sh;
 	wire 			sw;
-	wire 			swl;
-	wire 			swr;
 	wire  [3:0]     addrtype;//one-hot code
-	wire  [31:0]    swl_data;
-	wire  [31:0]    swr_data;
 	wire  			lbu;     //others are same as store
 	wire  			lhu;
 	wire  [31:0]    lb_data;
@@ -152,21 +137,16 @@ module custom_cpu(
 	wire  [31:0]    lw_data;
 	wire  [31:0]    lbu_data;
 	wire  [31:0]    lhu_data;
-	wire  [31:0]    lwl_data;
-	wire  [31:0]    lwr_data;
 	wire  [31:0]    Load_data;
-	//others
-	wire  [31:0]    lui_data;
-	wire  [31:0]    Data_result;
-	wire 			mov_judge;//if (==1) rf_wen=0
-	wire  [3:0]		func_m;
-	wire  [3:0]		opcode_modified;
 	//cnt define
 	reg   [31:0]    cycle_cnt;
 	reg   [31:0]    store_cnt;
 
 	// **********************************
 
+	/*
+	performance counter
+	*/
 	always @(posedge clk) begin
 		if (rst) 
 			cycle_cnt <= 32'd0;
@@ -210,14 +190,13 @@ module custom_cpu(
 				else next_state = IW;
 			end
 			ID : begin
-				if(NOP) next_state = IF;
-				else next_state = EX;
+				next_state = EX;
 			end
 			EX : begin
 				if(Iload) next_state = LD;
-				else if(Istore) next_state = ST;
-				else if(Rtype | Ioprt | jumpal) next_state = WB;
-				else next_state = IF;
+				else if(Stype) next_state = ST;
+				else if(Btype) next_state = IF;
+				else next_state = WB;
 			end
 			LD : begin
 				if (Mem_Req_Ready) next_state = RDW;
@@ -313,111 +292,95 @@ module custom_cpu(
 	/*
 	instruction
 	*/
-	assign Opcode = InstReg[31:26];
-	assign rs     = InstReg[25:21];
-	assign rt     = InstReg[20:16];
-	assign rd     = InstReg[15:11];
-	assign sa     = InstReg[10:6];
-	assign Func   = InstReg[5:0];
+	assign opcode  = InstReg[6:0];
+	assign rd      = InstReg[11:7];
+	assign funct   = InstReg[14:12];
+	assign rs1     = InstReg[19:15];
+	assign rs2     = InstReg[24:20];
+	assign func7   = InstReg[31:25];
 
 	/*
 	decoder
 	*/
-	assign NOP     = InstReg == 32'b0;
-	assign Rtype   = (~Opcode[5] & ~Opcode[4]) & (~Opcode[3] & ~Opcode[2]) & (~Opcode[1] & ~Opcode[0]);//6'b000000
-	assign REGIMM  = (~Opcode[5] & ~Opcode[4]) & (~Opcode[3] & ~Opcode[2]) & (~Opcode[1] & Opcode[0]);//6'b000001
-	assign Jtype   = (~Opcode[5] & ~Opcode[4]) & (~Opcode[3] & ~Opcode[2]) &   Opcode[1];//5'b000001
-	assign Ibranch = (~Opcode[5] & ~Opcode[4]) & (~Opcode[3] &  Opcode[2]);//4'b0001
-	assign Ioprt   = (~Opcode[5] & ~Opcode[4]) &   Opcode[3];//3'b001
-	assign Iload   = ( Opcode[5] & ~Opcode[4]) &  ~Opcode[3];//3'b100
-	assign Istore  = ( Opcode[5] & ~Opcode[4]) &   Opcode[3];//3'b101
+	assign Utype   = (~opcode[6] &  opcode[4]) & (~opcode[3] &  opcode[2]);
+	assign jalr    = ( opcode[6] &  opcode[5]) & (~opcode[4] & ~opcode[3]) &  opcode[2];
+	assign jal     = ( opcode[6] &  opcode[5]) & (~opcode[4] &  opcode[3]) &  opcode[2];
+	assign Btype   = ( opcode[6] &  opcode[5]) & (~opcode[4] & ~opcode[3]) & ~opcode[2];
+	assign Iload   = (~opcode[6] & ~opcode[5]) & (~opcode[4] & ~opcode[3]) & ~opcode[2];
+	assign Stype   = (~opcode[6] &  opcode[5]) & (~opcode[4] & ~opcode[3]) & ~opcode[2];
+	assign Ioprt   = (~opcode[6] & ~opcode[5]) & ( opcode[4] &  opcode[3]) & ~opcode[2];
+	assign Rtype   = (~opcode[6] &  opcode[5]) & ( opcode[4] & ~opcode[3]) & ~opcode[2];
 
-	assign Ibeq = Ibranch & ~Opcode[1];
-	assign Iblez = Ibranch & Opcode[1];
-	assign op_shift = Rtype & Func[5:3]==3'b000;
-	assign op_jump = Rtype & {Func[5:3], Func[1]} == 4'b0010;
-	assign op_mov = Rtype & {Func[5:3],Func[1]} == 4'b0011;
-	assign jumpal = (op_jump & Func[0]) | (Jtype & Opcode[0]);
-	assign jr = op_jump & ~Func[0];
-	assign jal = Jtype & Opcode[0];
-	assign lui = Ioprt & Opcode[2:0]==3'b111;
+	assign lui = Utype & opcode[5];
+	assign auipc = Utype & ~opcode[5];
+	assign shift = (Rtype | Ioprt) & (funct[0] & ~funct[1]);
 
 	/*
 	control unit
 	*/
 	assign MemRead = current_state == LD;
 	assign MemWrite = current_state == ST;
-	assign RegDst = Rtype;
-	assign Jump = Jtype | op_jump;
-	assign ALUsrc = Iload | Istore | Ioprt;
+	assign ALUsrc = Iload | Stype | Ioprt;
 	assign Mem2Reg = Iload;
-	assign RegWrite = Rtype | Iload | Ioprt | jal;
-	assign ALUop1 = Rtype | Ioprt | Iblez | REGIMM;
-	assign ALUop0 = Ibranch | REGIMM ;
-	assign PCsrc = (Ibranch & (Opcode[0] ^ ALU_zero)) | (REGIMM & (rt[0] ^~ ALU_zero));
 
 	/*
 	sign extension
 	*/
-	assign sign_ext  = {{16{InstReg[15]}}, InstReg[15:0]};
-	assign zero_ext  = { 16'b0           , InstReg[15:0]};
-	assign shift_ext = { sign_ext[29:0]  , 2'b00};
-	assign imm_data = Opcode[2]? zero_ext : sign_ext;
+	assign Ioprt_ext = {{20{InstReg[31]}} , InstReg[31:20]};
+	assign Btype_ext = {{20{InstReg[31]}} , {InstReg[31], InstReg[7], InstReg[30:25], InstReg[11:6]}};
+	assign Stype_ext = {{20{InstReg[31]}} , {InstReg[31:25], rd}};
+	assign Utype_ext = {    InstReg[31:12], 12'd0};
+	assign Jtype_ext = {{12{InstReg[31]}} , {InstReg[31], InstReg[19:12], InstReg[20], InstReg[30:21]}};
+	assign imm_data = ({32{Ioprt | Iload | jalr}} & Ioprt_ext)
+					| ({32{Btype}} & Btype_ext)
+					| ({32{Stype}} & Stype_ext)
+					| ({32{Utype}} & Utype_ext)
+					| ({32{jal}} & Jtype_ext);
 
 	/*
 	PC
 	*/
-	assign PC_plus4 = PC + 32'd4;
-	assign PC_add = jumpal ? 32'd4 : shift_ext;
-	assign PC_result = PC_plus4 + PC_add;
-	assign Jump_tar = {PC_plus4[31:28],InstReg[25:0],2'b00};
-	assign Jump_addr = op_jump? rdata1Reg : Jump_tar;
-	assign PC_tar = PCsrc? PC_result : PC_plus4;
-	assign PC_next = Jump? Jump_addr : PC_tar;
+	assign Branch = Btype & (funct[0] ^~ ALU_zero);
+	assign PC_plus4 = PC + 32'd4; 
+	assign PC_tar = PC + imm_data;
+	assign jalr_addr = {ALUReg[31:1] , 1'b0};
+	assign PC_next = ({32{Branch | jal}} & PC_tar)
+					|({32{jalr}} & jalr_addr)
+					|({32{~Branch & ~jal & ~jalr}} & PC_plus4);
 
 	always @(posedge clk) begin
-		if(rst) PC<=32'd0; 
-		else if(current_state == EX || current_state == ID && NOP)
+		if(rst) 
+			PC <= 32'd0; 
+		else if(current_state == EX)
 			PC <= PC_next;
 	end
 
 	/*
 	store
 	*/
-	assign sb  = ~Opcode[2] & ~Opcode[1] & ~Opcode[0];//Opcode[2:0]==3'b000;
-	assign sh  = ~Opcode[2] & ~Opcode[1] &  Opcode[0];//3'b001;
-	assign sw  = ~Opcode[2] &  Opcode[1] &  Opcode[0];//3'b011;
-	assign swl = ~Opcode[2] &  Opcode[1] & ~Opcode[0];//3'b010;
-	assign swr =  Opcode[2] &  Opcode[1] & ~Opcode[0];//3'b110;
+	assign sb  = ~funct[1] & ~funct[0];
+	assign sh  =  funct[0];
+	assign sw  =  funct[1];
+
 	assign addrtype[0] = ~ALUReg[1] & ~ALUReg[0];//2'b00;
 	assign addrtype[1] = ~ALUReg[1] &  ALUReg[0];//2'b01;
 	assign addrtype[2] =  ALUReg[1] & ~ALUReg[0];//2'b10;
 	assign addrtype[3] =  ALUReg[1] &  ALUReg[0];//2'b11;
 
-	assign Write_strb[3] = sw | sb & addrtype[3] | sh & addrtype[2] | swl &  addrtype[3] 				 | swr;
-	assign Write_strb[2] = sw | sb & addrtype[2] | sh & addrtype[2] | swl & (addrtype[3] | addrtype[2])  | swr & ~addrtype[3];
-	assign Write_strb[1] = sw | sb & addrtype[1] | sh & addrtype[0] | swl & ~addrtype[0] 				 | swr & (addrtype[0] | addrtype[1]);
-	assign Write_strb[0] = addrtype[0] | swl;
+	assign Write_strb[3] = sw | sb & addrtype[3] | sh & addrtype[2] ;
+	assign Write_strb[2] = sw | sb & addrtype[2] | sh & addrtype[2] ;
+	assign Write_strb[1] = sw | sb & addrtype[1] | sh & addrtype[0] ;
+	assign Write_strb[0] = addrtype[0] ;
 
-	assign swr_data = ({32{addrtype[3]}} & {rdata2Reg[ 7:0],24'd0})
-				    | ({32{addrtype[2]}} & {rdata2Reg[15:0],16'd0})
-				    | ({32{addrtype[1]}} & {rdata2Reg[23:0], 8'd0})
-				    | ({32{addrtype[0]}} & rdata2Reg);
-	assign swl_data = ({32{addrtype[3]}} & rdata2Reg)
-				    | ({32{addrtype[2]}} & { 8'd0,rdata2Reg[31:8]})
-				    | ({32{addrtype[1]}} & {16'd0,rdata2Reg[31:16]})
-				    | ({32{addrtype[0]}} & {24'd0,rdata2Reg[31:24]});
 	assign Write_data = ({32{sb}}  & {4{rdata2Reg[7:0]}})
 					  | ({32{sh}}  & {2{rdata2Reg[15:0]}})
-					  | ({32{sw}}  & rdata2Reg)
-					  | ({32{swl}} & swl_data)
-					  | ({32{swr}} & swr_data);
+					  | ({32{sw}}  & rdata2Reg);
 
 	/*
 	load
 	*/
-	assign lbu =  Opcode[2] & ~Opcode[1] & ~Opcode[0];//Opcode[2:0]==3'b100;
-	assign lhu =  Opcode[2] & ~Opcode[1] &  Opcode[0];//Opcode[2:0]==3'b101;
+	assign lbu =  funct[2] & sb;
+	assign lhu =  funct[2] & sh;
 
 	assign lb_data = ({32{addrtype[3]}} & {{24{Read_data[31]}}, Read_data[31:24]})
 				   | ({32{addrtype[2]}} & {{24{Read_data[23]}}, Read_data[23:16]})
@@ -428,60 +391,43 @@ module custom_cpu(
 	assign lw_data  =  Read_data[31:0];
 	assign lbu_data = {24'b0, lb_data[7:0]};
 	assign lhu_data = {16'b0, lh_data[15:0]};
-	assign lwl_data =  ({32{addrtype[3]}} &  Read_data[31:0])
-					 | ({32{addrtype[2]}} & {Read_data[23:0],  rdata2Reg[7:0]})
-					 | ({32{addrtype[1]}} & {Read_data[15:0],  rdata2Reg[15:0]})
-					 | ({32{addrtype[0]}} & {Read_data[7:0] ,  rdata2Reg[23:0]});
-	assign lwr_data = ({32{addrtype[3]}} & {rdata2Reg[31:8] , Read_data[31:24]})
-					| ({32{addrtype[2]}} & {rdata2Reg[31:16], Read_data[31:16]})
-					| ({32{addrtype[1]}} & {rdata2Reg[31:24], Read_data[31:8]})
-					| ({32{addrtype[0]}} &  Read_data[31:0]);
 	assign Load_data = ({32{sb}} & lb_data)
 					 | ({32{sh}} & lh_data)
 					 | ({32{sw}} & lw_data)
 					 | ({32{lbu}} & lbu_data)
-					 | ({32{lhu}} & lhu_data)
-					 | ({32{swl}} & lwl_data)
-				     | ({32{swr}} & lwr_data);
+					 | ({32{lhu}} & lhu_data);
 
 	/*
 	data path
 	*/
-	assign mov_judge = op_mov & (Func[0] ^~ rdata2Reg==0);
-	assign lui_data = {InstReg[15:0],16'd0};
-	assign raddr1 = rs;
-	assign raddr2 = REGIMM? 0:rt;
-	assign RF_wen = current_state == WB & ((jr | mov_judge)? 0:RegWrite);
-	assign RF_waddr = jal? 6'd31 :RegDst? rd:rt;
-	assign Data_result = ({32{jumpal}}   & PC_result)
-						|({32{lui}}      & lui_data)
-						|({32{op_mov}}   & rdata1Reg)
-						|({32{op_shift}} & Shift_result)
-						|({32{~jumpal & ~lui & ~op_mov & ~op_shift}} & ALU_result);
+	assign raddr1 = rs1;
+	assign raddr2 = rs2;
+	assign RF_wen = current_state[5];
+	assign RF_waddr = rd;
+	assign Data_result = ({32{jal | jalr}}  & PC_plus4)
+						|({32{auipc}}   & PC_tar)
+						|({32{lui}}   & Utype_ext)
+						|({32{shift}} & Shift_result)
+						|({32{(Rtype | Ioprt) & ~shift}} & ALU_result);
 	assign RF_wdata = Mem2Reg? MemReg: ResultReg;
 	assign Address  = {ALUReg[31:2], 2'b00};
 
 	/*
 	alu control
 	*/
-	assign opcode_modified = (Opcode[2:1]==2'b01)? Opcode[3:0] : {1'b0,Opcode[2:0]};
-	assign func_m = ({4{Rtype}} & InstReg [3:0]) | ({4{Ioprt}} & opcode_modified);
-	assign op2 = (~func_m[3] & func_m[1]) | (func_m[1] & ~func_m[0]);
-	assign op1 = ~func_m[2];
-	assign op0 = (func_m[2] & func_m[0]) | func_m[3];
-	assign ALUop[2] = ALUop0 | (op2 & ALUop1);
-	assign ALUop[1] = ~ALUop1 | ALUop0 | op1;
-	assign ALUop[0] = (ALUop1 & ALUop0) | (ALUop1 & ~ALUop0 & op0);
-
-	assign ALU_A = Iblez? rdata2Reg: op_mov? 32'b0 : rdata1Reg;
-	assign ALU_B = Iblez? rdata1Reg: ALUsrc? imm_data : rdata2Reg;
+	assign ALUop = ({3{Iload | Stype | jalr}} & 3'b000)//add
+				 | ({3{Btype}} & {1'b0, funct[2], funct[2] ^~ funct[1]})
+				 | ({3{Rtype}} & {funct[2:1], func7[5] | funct[2:1]})
+				 | ({3{Ioprt}} & {funct[2:0]});
+	assign ALU_A = Btype? rdata2Reg: rdata1Reg;
+	assign ALU_B = Btype? rdata1Reg: ALUsrc? imm_data : rdata2Reg;
 
 	/*
 	shifter
 	*/
-	assign Shiftop = Func[1:0];
-	assign Shift_A = rdata2Reg;
-	assign Shift_B = Func[2]? rdata1Reg : {27'b0,sa};
+	assign Shiftop = {func7[5],funct[2]};
+	assign Shift_A = rdata1Reg;
+	assign Shift_B = opcode[5] ? rdata2Reg : {27'b0,rs2};
 
 	/*
 	instantiation

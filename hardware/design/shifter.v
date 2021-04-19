@@ -18,8 +18,8 @@ module shifter (
 	wire [`DATA_WIDTH - 1:0]srl_result;
 
 	assign sll = Shiftop == 2'b00;
+	assign srl = Shiftop == 2'b01;
 	assign sra = Shiftop == 2'b11;
-	assign srl = Shiftop == 2'b10;
 	assign sll_result = A << B[4:0];
 	assign sra_result = ($signed(A)) >>> B[4:0];
 	assign srl_result = A >> B[4:0];
