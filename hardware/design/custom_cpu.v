@@ -340,7 +340,7 @@ module custom_cpu(
 	/*
 	PC
 	*/
-	assign Branch = Btype & (funct[0] ^~ ALU_zero);
+	assign Branch = Btype & (funct[0] ^ ALU_zero);
 	assign PC_plus4 = PC + 32'd4; 
 	assign PC_tar = PC + imm_data;
 	assign jalr_addr = {ALUReg[31:1] , 1'b0};
