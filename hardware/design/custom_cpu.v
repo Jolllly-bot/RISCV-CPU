@@ -308,7 +308,7 @@ module custom_cpu(
 	assign Btype   = ( opcode[6] &  opcode[5]) & (~opcode[4] & ~opcode[3]) & ~opcode[2];
 	assign Iload   = (~opcode[6] & ~opcode[5]) & (~opcode[4] & ~opcode[3]) & ~opcode[2];
 	assign Stype   = (~opcode[6] &  opcode[5]) & (~opcode[4] & ~opcode[3]) & ~opcode[2];
-	assign Ioprt   = (~opcode[6] & ~opcode[5]) & ( opcode[4] &  opcode[3]) & ~opcode[2];
+	assign Ioprt   = (~opcode[6] & ~opcode[5]) & ( opcode[4] & ~opcode[3]) & ~opcode[2];
 	assign Rtype   = (~opcode[6] &  opcode[5]) & ( opcode[4] & ~opcode[3]) & ~opcode[2];
 
 	assign lui = Utype & opcode[5];
