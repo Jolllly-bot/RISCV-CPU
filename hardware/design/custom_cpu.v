@@ -359,8 +359,8 @@ module custom_cpu(
 	store
 	*/
 	assign sb  = ~funct[1] & ~funct[0];
-	assign sh  =  funct[0];
-	assign sw  =  funct[1];
+	assign sh  = ~funct[1] &  funct[0];
+	assign sw  =  funct[1] & ~funct[0];
 
 	assign addrtype[0] = ~ALUReg[1] & ~ALUReg[0];//2'b00;
 	assign addrtype[1] = ~ALUReg[1] &  ALUReg[0];//2'b01;

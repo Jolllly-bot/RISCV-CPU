@@ -112,7 +112,7 @@ sw_microbench:
 06_if-else_bhv_sim:
   stage: bhv_sim
   script:
-    - make HW_ACT=bhv_sim HW_VAL=medium:05 DUMP_TIME="30000 35000" CI_RUN=y vivado_prj
+    - make HW_ACT=bhv_sim HW_VAL=medium:05 CI_RUN=y vivado_prj
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -134,7 +134,7 @@ sw_microbench:
 08_quick-sort_bhv_sim:
   stage: bhv_sim
   script:
-    - make HW_ACT=bhv_sim HW_VAL=medium:07 DUMP_TIME="20000 25000" CI_RUN=y vivado_prj
+    - make HW_ACT=bhv_sim HW_VAL=medium:07 CI_RUN=y vivado_prj
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -223,7 +223,7 @@ sw_microbench:
 16_bit_bhv_sim:
   stage: bhv_sim
   script:
-    - make HW_ACT=bhv_sim HW_VAL=advanced:03 CI_RUN=y vivado_prj
+    - make HW_ACT=bhv_sim HW_VAL=advanced:03 DUMP_TIME="15000 20000" CI_RUN=y vivado_prj
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -322,7 +322,7 @@ sw_microbench:
 25_mul-longlong_bhv_sim:
   stage: bhv_sim
   script:
-    - make HW_ACT=bhv_sim HW_VAL=advanced:12 CI_RUN=y vivado_prj
+    - make HW_ACT=bhv_sim HW_VAL=advanced:12 DUMP_TIME="5000 10000" CI_RUN=y vivado_prj
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
