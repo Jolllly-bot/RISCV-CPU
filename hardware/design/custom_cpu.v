@@ -220,7 +220,7 @@ module custom_cpu(
 	end
 
 	//output
-	always @(*) begin
+		always @(*) begin
 		if(current_state == RST)
 			Inst_Req_Valid = LOW;
 		else if(current_state == IF)
@@ -251,40 +251,40 @@ module custom_cpu(
 			Read_data_Ready = LOW;
 	end
 
-	always @(*) begin
-		if(current_state == IW && Inst_Valid) 
-			InstReg = Instruction;
-		else
-			InstReg = InstReg;
+	always @(posedge clk) begin
+		if(current_state == RST)
+			InstReg <= 31'd0;
+		else if(current_state == IW && Inst_Valid) 
+			InstReg <= Instruction;
 	end
 
-	always @(*) begin
-		if(current_state == ID) begin
-			rdata1Reg = rdata1;
-			rdata2Reg = rdata2;
+	always @(posedge clk) begin
+		if(current_state == RST) begin
+			rdata1Reg <= 32'd0;
+			rdata2Reg <= 32'd0;
 		end
-		else begin
-			rdata1Reg = rdata1Reg;
-			rdata2Reg = rdata2Reg;
-		end
-	end
-
-	always @(*) begin
-		if(current_state == EX) begin
-			ALUReg = ALU_result;
-			ResultReg = Data_result;
-		end
-		else begin
-			ALUReg = ALUReg;
-			ResultReg = ResultReg;
+		else if(current_state == ID) begin
+			rdata1Reg <= rdata1;
+			rdata2Reg <= rdata2;
 		end
 	end
 
-	always @(*) begin
-		if(current_state == RDW && Read_data_Valid)
-			MemReg = Load_data;
-		else
-			MemReg = MemReg;
+	always @(posedge clk) begin
+		if(current_state == RST) begin
+			ALUReg <= 32'd0;
+			ResultReg <= 32'd0;
+		end
+		else if(current_state == EX) begin
+			ALUReg <= ALU_result;
+			ResultReg <= Data_result;
+		end
+	end
+
+	always @(posedge clk) begin
+		if(current_state == RST)
+			MemReg <= 32'd0;
+		else if(current_state == RDW && Read_data_Valid)
+			MemReg <= Load_data;
 	end
 
 	/*
