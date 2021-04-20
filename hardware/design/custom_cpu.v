@@ -140,7 +140,7 @@ module custom_cpu(
 	wire  [31:0]    Load_data;
 	//cnt define
 	reg   [31:0]    cycle_cnt;
-	reg   [31:0]    store_cnt;
+	reg   [31:0]    inst_cnt;
 
 	// **********************************
 
@@ -157,11 +157,11 @@ module custom_cpu(
 
 	always @(posedge clk) begin
 		if (rst) 
-			store_cnt <= 32'd0;
-		else if(current_state == ST)
-			store_cnt <= store_cnt + 32'd1;
+			inst_cnt <= 32'd0;
+		else if(current_state == IW && Inst_Valid)
+			inst_cnt <= inst_cnt + 32'd1;
 	end
-	assign cpu_perf_cnt_1 = store_cnt;
+	assign cpu_perf_cnt_1 = inst_cnt;
 
 	/*
 	state machine
@@ -220,35 +220,31 @@ module custom_cpu(
 	end
 
 	//output
-		always @(*) begin
-		if(current_state == RST)
-			Inst_Req_Valid = LOW;
-		else if(current_state == IF)
-			Inst_Req_Valid = HIGH;
+	always @(posedge clk) begin
+		if(next_state == RST)
+			Inst_Req_Valid <= LOW;
+		else if(next_state == IF)
+			Inst_Req_Valid <= HIGH;
 		else
-			Inst_Req_Valid = LOW;
+			Inst_Req_Valid <= LOW;
 	end
 
-	always @(*) begin
-		if(current_state == RST)
-			Inst_Ready = HIGH;
-		else if(current_state == IF)
-			Inst_Ready = LOW;
-		else if(current_state == IW)
-			Inst_Ready = HIGH;
+	always @(posedge clk) begin
+		if(next_state == RST)
+			Inst_Ready <= HIGH;
+		else if(next_state == IW)
+			Inst_Ready <= HIGH;
 		else
-			Inst_Ready = LOW;
+			Inst_Ready <= LOW;
 	end
 
-	always @(*) begin
-		if(current_state == RST)
-			Read_data_Ready = HIGH;
-		else if(current_state == IF)
-			Read_data_Ready = LOW;
-		else if(current_state == RDW)
-			Read_data_Ready = HIGH;
+	always @(posedge clk) begin
+		if(next_state == RST)
+			Read_data_Ready <= HIGH;
+		else if(next_state == RDW)
+			Read_data_Ready <= HIGH;
 		else
-			Read_data_Ready = LOW;
+			Read_data_Ready <= LOW;
 	end
 
 	always @(posedge clk) begin

@@ -68,7 +68,7 @@ sw_microbench:
 02_sum_bhv_sim:
   stage: bhv_sim
   script:
-    - make HW_ACT=bhv_sim HW_VAL=medium:01 CI_RUN=y vivado_prj
+    - make HW_ACT=bhv_sim HW_VAL=medium:01 DUMP_TIME="70000 75000" CI_RUN=y vivado_prj
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always

@@ -9,7 +9,7 @@ volatile unsigned long *mips_perf_cnt_1 = (void*) 0x40020008;
 typedef struct Result {
   int pass;
   unsigned long msec;
-  unsigned long store;
+  unsigned long inst;
 } Result;
 
 unsigned long _uptime() {
@@ -18,7 +18,7 @@ unsigned long _uptime() {
   return *mips_perf_cnt_0;
 }
 
-unsigned long _store() {
+unsigned long _inst() {
   return *mips_perf_cnt_1;
 }
 
@@ -28,14 +28,14 @@ static void bench_prepare(Result *res) {
   //   You can communicate between bench_prepare() and bench_done() through
   //   static variables or add additional fields in `struct Result`
   res->msec = _uptime();
-  res->store = _store();
+  res->inst = _inst();
 }
 
 static void bench_done(Result *res) {
   // TODO [COD]
   //  Add postprocess code, record performance counters' current states.
   res->msec = _uptime() - res->msec;
-  res->store = _store() - res->store;
+  res->inst = _inst() - res->inst;
 }
 
 
@@ -99,7 +99,7 @@ int main() {
       printk("Ignored %s\n", msg);
     } else {
       unsigned long msec = ULONG_MAX;
-      unsigned long store = ULONG_MAX;
+      unsigned long minst = ULONG_MAX;
       int succ = 1;
       for (int i = 0; i < REPEAT; i ++) {
         Result res;
@@ -107,7 +107,7 @@ int main() {
         printk(res.pass ? "*" : "X");
         succ &= res.pass;
         if (res.msec < msec) msec = res.msec;
-        if (res.store < store) store = res.store;
+        if (res.inst < minst) minst = res.inst;
       }
 
       if (succ) printk(" Passed.\n");
@@ -120,7 +120,7 @@ int main() {
       //   `msec' is intended indicate the time (or cycle),
       //   you can ignore according to your performance counters semantics.x
       printk(">>cycle_cnt = %u\n",msec);
-      printk(">>store_cnt = %u\n",store);
+      printk(">>instruction_cnt = %u\n",minst);
     }
   }
 
