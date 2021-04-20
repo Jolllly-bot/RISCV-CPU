@@ -199,6 +199,7 @@ sw_microbench:
 
 14_shuixianhua_bhv_sim:
   stage: bhv_sim
+  allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=advanced:01 CI_RUN=y vivado_prj
   timeout: 3 hours
@@ -333,7 +334,7 @@ sw_microbench:
 26_load-store_bhv_sim:
   stage: bhv_sim
   script:
-    - make HW_ACT=bhv_sim HW_VAL=advanced:13 DUMP_TIME="15000 21000" CI_RUN=y vivado_prj
+    - make HW_ACT=bhv_sim HW_VAL=advanced:13 CI_RUN=y vivado_prj
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -365,6 +366,7 @@ sw_microbench:
 
 29_matrix-mul_bhv_sim:
   stage: bhv_sim
+  allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=advanced:16 CI_RUN=y vivado_prj
   artifacts:
@@ -377,7 +379,7 @@ sw_microbench:
 30_unalign_bhv_sim:
   stage: bhv_sim
   script:
-    - make HW_ACT=bhv_sim HW_VAL=advanced:17 DUMP_TIME="0 6000" CI_RUN=y vivado_prj
+    - make HW_ACT=bhv_sim HW_VAL=advanced:17 CI_RUN=y vivado_prj
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
