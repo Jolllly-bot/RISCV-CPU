@@ -225,7 +225,7 @@ module custom_cpu(
 			Inst_Req_Valid = LOW;
 		else if(current_state == IF)
 			Inst_Req_Valid = HIGH;
-		else if(current_state == IW)
+		else
 			Inst_Req_Valid = LOW;
 	end
 
@@ -236,7 +236,7 @@ module custom_cpu(
 			Inst_Ready = LOW;
 		else if(current_state == IW)
 			Inst_Ready = HIGH;
-		else if(current_state == ID)
+		else
 			Inst_Ready = LOW;
 	end
 
@@ -247,46 +247,44 @@ module custom_cpu(
 			Read_data_Ready = LOW;
 		else if(current_state == RDW)
 			Read_data_Ready = HIGH;
-		else if(current_state == WB)
+		else
 			Read_data_Ready = LOW;
 	end
 
 	always @(*) begin
-		if (current_state == RST)
-			InstReg = 32'd0;
-		else if(current_state == IW && Inst_Valid) begin
+		if(current_state == IW && Inst_Valid) 
 			InstReg = Instruction;
-		end
+		else
+			InstReg = 32'd0;
 	end
 
 	always @(*) begin
-		if (current_state == RST)begin
-			rdata1Reg = 32'd0;
-			rdata2Reg = 32'd0;
-		end
-		else if(current_state == ID) begin
+		if(current_state == ID) begin
 			rdata1Reg = rdata1;
 			rdata2Reg = rdata2;
 		end
+		else begin
+			rdata1Reg = 32'd0;
+			rdata2Reg = 32'd0;
+		end
 	end
 
 	always @(*) begin
-		if(current_state == RST) begin
-			ALUReg = 32'd0;
-			ResultReg = 32'd0;
-		end
-		else if(current_state == EX) begin
+		if(current_state == EX) begin
 			ALUReg = ALU_result;
 			ResultReg = Data_result;
 		end
+		else begin
+			ALUReg = 32'd0;
+			ResultReg = 32'd0;
+		end
 	end
 
 	always @(*) begin
-		if(current_state == RST)
-			MemReg = 32'd0;
-		else if(current_state == RDW && Read_data_Valid) begin
+		if(current_state == RDW && Read_data_Valid)
 			MemReg = Load_data;
-		end
+		else
+			MemReg = 32'd0;
 	end
 
 	/*
