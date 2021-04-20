@@ -417,7 +417,7 @@ module custom_cpu(
 	*/
 	assign ALUop = ({3{Iload | Stype | jalr}} & 3'b000)//add
 				 | ({3{Btype}} & {1'b0, funct[2], funct[2] ^~ funct[1]})
-				 | ({3{Rtype}} & {funct[2:1], func7[5] | funct[2:1]})
+				 | ({3{Rtype}} & {funct[2:1], func7[5] | funct[0]})
 				 | ({3{Ioprt}} & {funct[2:0]});
 	assign ALU_A = rdata1Reg;
 	assign ALU_B = ALUsrc? imm_data : rdata2Reg;
