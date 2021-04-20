@@ -241,7 +241,7 @@ module custom_cpu(
 	end
 
 	always @(*) begin
-		if(next_state == RST)
+		if(current_state == RST)
 			Read_data_Ready = HIGH;
 		else if(current_state == IF)
 			Read_data_Ready = LOW;
@@ -255,7 +255,7 @@ module custom_cpu(
 		if(current_state == IW && Inst_Valid) 
 			InstReg = Instruction;
 		else
-			InstReg = 32'd0;
+			InstReg = InstReg;
 	end
 
 	always @(*) begin
@@ -264,8 +264,8 @@ module custom_cpu(
 			rdata2Reg = rdata2;
 		end
 		else begin
-			rdata1Reg = 32'd0;
-			rdata2Reg = 32'd0;
+			rdata1Reg = rdata1Reg;
+			rdata2Reg = rdata2Reg;
 		end
 	end
 
@@ -275,8 +275,8 @@ module custom_cpu(
 			ResultReg = Data_result;
 		end
 		else begin
-			ALUReg = 32'd0;
-			ResultReg = 32'd0;
+			ALUReg = ALUReg;
+			ResultReg = ResultReg;
 		end
 	end
 
@@ -284,7 +284,7 @@ module custom_cpu(
 		if(current_state == RDW && Read_data_Valid)
 			MemReg = Load_data;
 		else
-			MemReg = 32'd0;
+			MemReg = MemReg;
 	end
 
 	/*
