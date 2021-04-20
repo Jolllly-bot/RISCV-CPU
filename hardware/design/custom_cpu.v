@@ -325,7 +325,7 @@ module custom_cpu(
 	assign Branch = Btype & ((~funct[2] & (funct[0] ^ ALU_zero)) | (funct[2] & (funct[0] ^~ ALU_zero)));
 	assign PC_plus4 = PC + 32'd4; 
 	assign PC_tar = PC + imm_data;
-	assign jalr_addr = {ALUReg[31:1] , 1'b0};
+	assign jalr_addr = {ALU_result[31:1] , 1'b0};
 	assign PC_next = ({32{Branch | jal}} & PC_tar)
 					|({32{jalr}} & jalr_addr)
 					|({32{~Branch & ~jal & ~jalr}} & PC_plus4);
