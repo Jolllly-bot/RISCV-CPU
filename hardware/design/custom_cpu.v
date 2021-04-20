@@ -252,38 +252,26 @@ module custom_cpu(
 	end
 
 	always @(posedge clk) begin
-		if(current_state == RST)
-			InstReg <= 31'd0;
-		else if(current_state == IW && Inst_Valid) 
+		if(current_state == IW && Inst_Valid) 
 			InstReg <= Instruction;
 	end
 
 	always @(posedge clk) begin
-		if(current_state == RST) begin
-			rdata1Reg <= 32'd0;
-			rdata2Reg <= 32'd0;
-		end
-		else if(current_state == ID) begin
+		if(current_state == ID) begin
 			rdata1Reg <= rdata1;
 			rdata2Reg <= rdata2;
 		end
 	end
 
 	always @(posedge clk) begin
-		if(current_state == RST) begin
-			ALUReg <= 32'd0;
-			ResultReg <= 32'd0;
-		end
-		else if(current_state == EX) begin
+		if(current_state == EX) begin
 			ALUReg <= ALU_result;
 			ResultReg <= Data_result;
 		end
 	end
 
 	always @(posedge clk) begin
-		if(current_state == RST)
-			MemReg <= 32'd0;
-		else if(current_state == RDW && Read_data_Valid)
+		if(current_state == RDW && Read_data_Valid)
 			MemReg <= Load_data;
 	end
 
