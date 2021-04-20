@@ -358,9 +358,9 @@ module custom_cpu(
 	/*
 	store
 	*/
-	assign sb  = ~funct[1] & ~funct[0];
-	assign sh  = ~funct[1] &  funct[0];
-	assign sw  =  funct[1] & ~funct[0];
+	assign sb  =  ~funct[2] & ~funct[1] & ~funct[0];
+	assign sh  =  ~funct[2] & ~funct[1] &  funct[0];
+	assign sw  =  ~funct[2] &  funct[1] & ~funct[0];
 
 	assign addrtype[0] = ~ALUReg[1] & ~ALUReg[0];//2'b00;
 	assign addrtype[1] = ~ALUReg[1] &  ALUReg[0];//2'b01;
@@ -379,8 +379,8 @@ module custom_cpu(
 	/*
 	load
 	*/
-	assign lbu =  funct[2] & sb;
-	assign lhu =  funct[2] & sh;
+	assign lbu =  funct[2] & ~funct[1] & ~funct[0];
+	assign lhu =  funct[2] & ~funct[1] &  funct[0];
 
 	assign lb_data = ({32{addrtype[3]}} & {{24{Read_data[31]}}, Read_data[31:24]})
 				   | ({32{addrtype[2]}} & {{24{Read_data[23]}}, Read_data[23:16]})
