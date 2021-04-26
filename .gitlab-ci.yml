@@ -1,0 +1,111 @@
+stages:
+  - rtl_chk
+  - bhv_sim
+  - run_syn
+  - bit_gen
+  - fpga_eval
+
+variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_STRATEGY: clone
+
+default:
+  image: gitlab.agileserve.org.cn:15050/zelin/vivado-ci-tools/vivado-vnc-ci-multistage:v2.5
+  tags: 
+    - k8s
+  before_script:
+    - cd flow 
+
+rtl_chk:
+  stage: rtl_chk
+  script:
+    - make HW_ACT=rtl_chk CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+
+bit_gen:
+  stage: bit_gen
+  script:
+    - make HW_ACT=bit_gen CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/synth_rpt
+      - flow/hardware/vivado_out/impl_rpt
+      - flow/hw_plat/
+      - flow/hardware/vivado_out/run_log
+
+basic_fpga_eval:
+  stage: fpga_eval
+  tags:
+    - nf_vm
+  script:
+    - mkdir -p ./run/log 
+    - cd run/
+    - bash ci_run.sh $CI_CONCURRENT_ID basic | tee ./log/cloud_run.log
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/run/log/
+
+medium_fpga_eval:
+  stage: fpga_eval
+  tags:
+    - nf_vm
+  script:
+    - mkdir -p ./run/log 
+    - cd run/
+    - bash ci_run.sh $CI_CONCURRENT_ID medium | tee ./log/cloud_run.log
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/run/log/
+
+advanced_fpga_eval:
+  stage: fpga_eval
+  tags:
+    - nf_vm
+  script:
+    - mkdir -p ./run/log 
+    - cd run/
+    - bash ci_run.sh $CI_CONCURRENT_ID advanced | tee ./log/cloud_run.log
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/run/log/
+
+hello_fpga_eval:
+  stage: fpga_eval
+  tags:
+    - nf_vm
+  script:
+    - mkdir -p ./run/log 
+    - cd run/
+    - bash ci_run.sh $CI_CONCURRENT_ID hello | tee ./log/cloud_run.log
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/run/log/
+
+microbench_fpga_eval:
+  stage: fpga_eval
+  tags:
+    - nf_vm
+  script:
+    - mkdir -p ./run/log 
+    - cd run/
+    - bash ci_run.sh $CI_CONCURRENT_ID microbench | tee ./log/cloud_run.log
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/run/log/
+
