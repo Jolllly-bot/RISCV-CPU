@@ -6,15 +6,15 @@ stages:
   - fpga_eval
 
 variables:
-    GIT_SUBMODULE_STRATEGY: recursive
-    GIT_STRATEGY: clone
+    GIT_SUBMODULE_STRATEGY: normal
+    GIT_DEPTH: "1"
 
 default:
   image: gitlab.agileserve.org.cn:15050/zelin/vivado-ci-tools/vivado-vnc-ci-multistage:v2.5
   tags: 
     - k8s
   before_script:
-    - cd flow 
+    - cd flow
 
 rtl_chk:
   stage: rtl_chk
@@ -26,8 +26,340 @@ rtl_chk:
     paths:
       - flow/hardware/vivado_out/run_log
 
+01_memcpy_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=basic:01 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+02_sum_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:01 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+03_mov-c_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:02 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+04_fib_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:03 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+05_add_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:04 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+06_if-else_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:05 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+07_pascal_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:06 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+08_quick-sort_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:07 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+09_select-sort_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:08 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+10_max_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:09 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+11_min3_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:10 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+12_switch_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:11 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+13_bubble-sort_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=medium:12 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+14_shuixianhua_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:01 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+15_sub-longlong_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:02 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+16_bit_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:03 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+17_recursion_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:04 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+18_fact_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:05 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+19_add-longlong_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:06 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+20_shift_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:07 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+21_wanshu_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:08 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+22_goldbach_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:09 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+23_leap-year_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:10 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+24_prime_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:11 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+25_mul-longlong_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:12 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+26_load-store_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:13 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+27_to-lower-case_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:14 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+28_movsx_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:15 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+29_matrix-mul_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:16 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
+30_unalign_bhv_sim:
+  stage: bhv_sim
+  script:
+    - make HW_ACT=bhv_sim HW_VAL=advanced:17 CI_RUN=y vivado_prj
+  artifacts:
+    name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
+    when: always
+    paths:
+      - flow/hardware/vivado_out/run_log
+      - flow/hardware/vivado_out/sim
+
 bit_gen:
   stage: bit_gen
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
   script:
     - make HW_ACT=bit_gen CI_RUN=y vivado_prj
   artifacts:
@@ -41,6 +373,8 @@ bit_gen:
 
 basic_fpga_eval:
   stage: fpga_eval
+  variables:
+    GIT_STRATEGY: clone
   tags:
     - nf_vm
   script:
@@ -55,6 +389,8 @@ basic_fpga_eval:
 
 medium_fpga_eval:
   stage: fpga_eval
+  variables:
+    GIT_STRATEGY: clone
   tags:
     - nf_vm
   script:
@@ -69,6 +405,8 @@ medium_fpga_eval:
 
 advanced_fpga_eval:
   stage: fpga_eval
+  variables:
+    GIT_STRATEGY: clone
   tags:
     - nf_vm
   script:
@@ -83,6 +421,8 @@ advanced_fpga_eval:
 
 hello_fpga_eval:
   stage: fpga_eval
+  variables:
+    GIT_STRATEGY: clone
   tags:
     - nf_vm
   script:
@@ -97,6 +437,8 @@ hello_fpga_eval:
 
 microbench_fpga_eval:
   stage: fpga_eval
+  variables:
+    GIT_STRATEGY: clone
   tags:
     - nf_vm
   script:
