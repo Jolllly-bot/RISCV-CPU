@@ -10,7 +10,7 @@ variables:
     GIT_DEPTH: "1"
 
 default:
-  image: gitlab.agileserve.org.cn:15050/zelin/vivado-ci-tools/vivado-vnc-ci-multistage:v2.5
+  image: gitlab.agileserve.org.cn:15050/zelin/vivado-ci-tools/vivado-vnc-ci-multistage:v2.6
   tags: 
     - k8s
   before_script:
@@ -30,6 +30,7 @@ sw_hello:
   stage: src_chk
   allow_failure: true
   script:
+    - sudo ln -s /usr/lib/x86_64-linux-gnu/libmpfr.so.6 /usr/lib/x86_64-linux-gnu/libmpfr.so.4
     - make hello
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
@@ -43,6 +44,7 @@ sw_microbench:
   stage: src_chk
   allow_failure: true
   script:
+    - sudo ln -s /usr/lib/x86_64-linux-gnu/libmpfr.so.6 /usr/lib/x86_64-linux-gnu/libmpfr.so.4
     - make microbench
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
@@ -199,6 +201,7 @@ sw_microbench:
   stage: bhv_sim
   script:
     - make HW_ACT=bhv_sim HW_VAL=advanced:01 CI_RUN=y vivado_prj
+  timeout: 3 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -399,6 +402,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:01 CI_RUN=y vivado_prj
+  timeout: 6 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -411,6 +415,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:02 CI_RUN=y vivado_prj
+  timeout: 3 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -423,6 +428,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:03 CI_RUN=y vivado_prj
+  timeout: 6 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -435,6 +441,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:04 CI_RUN=y vivado_prj
+  timeout: 6 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -447,6 +454,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:05 CI_RUN=y vivado_prj
+  timeout: 3 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -459,6 +467,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:06 CI_RUN=y vivado_prj
+  timeout: 3 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -471,6 +480,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:07 CI_RUN=y vivado_prj
+  timeout: 3 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -483,6 +493,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:08 CI_RUN=y vivado_prj
+  timeout: 3 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
@@ -495,6 +506,7 @@ sw_microbench:
   allow_failure: true
   script:
     - make HW_ACT=bhv_sim HW_VAL=microbench:09 CI_RUN=y vivado_prj
+  timeout: 6 hours
   artifacts:
     name: "$CI_JOB_STAGE-$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
     when: always
