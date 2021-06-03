@@ -3,15 +3,23 @@
 #include <trap.h>
 #include <limits.h>
 
+volatile unsigned long *mips_perf_cnt_0 = (void*) 0x40020000;
+volatile unsigned long *mips_perf_cnt_1 = (void*) 0x40020008;
+
 typedef struct Result {
   int pass;
   unsigned long msec;
+  unsigned long store;
 } Result;
 
 unsigned long _uptime() {
   // TODO [COD]
   //   You can use this function to access performance counter related with time or cycle.
-  return 0;
+  return *mips_perf_cnt_0;
+}
+
+unsigned long _store() {
+  return *mips_perf_cnt_1;
 }
 
 static void bench_prepare(Result *res) {
@@ -20,12 +28,14 @@ static void bench_prepare(Result *res) {
   //   You can communicate between bench_prepare() and bench_done() through
   //   static variables or add additional fields in `struct Result`
   res->msec = _uptime();
+  res->store = _store();
 }
 
 static void bench_done(Result *res) {
   // TODO [COD]
   //  Add postprocess code, record performance counters' current states.
   res->msec = _uptime() - res->msec;
+  res->store = _store() - res->store;
 }
 
 
@@ -89,6 +99,7 @@ int main() {
       printk("Ignored %s\n", msg);
     } else {
       unsigned long msec = ULONG_MAX;
+      unsigned long store = ULONG_MAX;
       int succ = 1;
       for (int i = 0; i < REPEAT; i ++) {
         Result res;
@@ -96,6 +107,7 @@ int main() {
         printk(res.pass ? "*" : "X");
         succ &= res.pass;
         if (res.msec < msec) msec = res.msec;
+        if (res.store < store) store = res.store;
       }
 
       if (succ) printk(" Passed.\n");
@@ -106,7 +118,9 @@ int main() {
       // TODO [COD]
       //   A benchmark is finished here, you can use printk to output some informantion.
       //   `msec' is intended indicate the time (or cycle),
-      //   you can ignore according to your performance counters semantics.
+      //   you can ignore according to your performance counters semantics.x
+      printk(">>cycle_cnt = %u\n",msec);
+      printk(">>store_cnt = %u\n",store);
     }
   }
 

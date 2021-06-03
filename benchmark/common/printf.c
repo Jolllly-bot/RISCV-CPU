@@ -250,6 +250,13 @@ int
 puts(const char *s)
 {
 	//TODO: Add your driver code here 
+	int i;
+	for(i=0; s[i]!='\0'; i++){
+		while(*(uart+UART_STATUS/4) & UART_TX_FIFO_FULL)
+			;
+		*(uart+UART_TX_FIFO/4) = s[i];
+	}
+	return i;
 }
 
 int
